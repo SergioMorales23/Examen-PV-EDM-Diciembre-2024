@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import ar.edu.unju.fi.model.Habitacion;
 
 @Repository
-public interface HabitacionRepository extends JpaRepository <Habitacion,String> {
+public interface HabitacionRepository extends JpaRepository <Habitacion, Long> {
 
 		List<Habitacion> findHabitacionByEstado(Boolean estado);
 }
