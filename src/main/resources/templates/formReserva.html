@@ -42,6 +42,8 @@
 			                data-th-value="${hab.codigo}" 
 			                data-th-text="${hab.descripcion}"></option>
 			    </select>
+			    <div class="text-danger" data-th-if="${#fields.hasErrors('habitacion')}" 
+         data-th-text="${#fields.errors('habitacion')}"></div>
 			</div>
 			
 			<button type="submit" class="btn btn-primary">Guardar Datos</button>
