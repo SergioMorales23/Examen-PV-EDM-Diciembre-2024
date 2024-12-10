@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -62,22 +63,34 @@ public class ReservaController {
 	
 	
 	@PostMapping("/guardarReserva")
-	public ModelAndView saveReserva(@ModelAttribute("nuevoReserva") Reserva reservaParaGuardar) {
-					
-		//guardar
-		//ListadoCarreras.agregarCarrera(carreraParaGuardar);
-		ModelAndView modelView = new ModelAndView("listaDeReservas");			
-		try {
-				reservaService.guardarReserva(reservaParaGuardar);	
-
-		}catch(Exception e) {			
-			modelView.addObject("errors", true);
-			modelView.addObject("cargaReservaErrorMessage", "Error al cargar en la BD: " + e.getMessage());
-			System.out.println(e.getMessage());
-		}
-		
-		modelView.addObject("listadoReservas", reservaService.listarReservas());				
-		return modelView;		
+	public ModelAndView saveReserva(@ModelAttribute("nuevoReserva") Reserva reservaParaGuardar, BindingResult bindingResult) {
+	    ModelAndView modelView = new ModelAndView("listaDeReservas");
+	    
+	    // Verificar si la habitación está disponible
+	    boolean isAvailable = reservaService.isHabitacionDisponible(reservaParaGuardar.getHabitacion().getCodigo(), reservaParaGuardar.getFecha());
+	    
+	    if (!isAvailable) {
+	        bindingResult.rejectValue("habitacion", "error.habitacion", "La habitación ya está reservada para esta fecha.");
+	    }
+	    
+	    // Validar el objeto
+	    if (bindingResult.hasErrors()) {
+	        // Si hay errores, volver a mostrar el formulario
+	        modelView.setViewName("formReserva");
+	        modelView.addObject("nuevoReserva", reservaParaGuardar);
+	        return modelView;
+	    }
+	    
+	    try {
+	        reservaService.guardarReserva(reservaParaGuardar);
+	    } catch (Exception e) {
+	        modelView.addObject("errors", true);
+	        modelView.addObject("cargaReservaErrorMessage", "Error al cargar en la BD: " + e.getMessage());
+	        System.out.println(e.getMessage());
+	    }
+	    
+	    modelView.addObject("listadoReservas", reservaService.listarReservas());
+	    return modelView;
 	}
 	
 	
